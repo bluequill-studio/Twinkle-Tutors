@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://twinkletutor.com/sitemap.xml
