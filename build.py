@@ -7,12 +7,13 @@ from urllib.parse import quote
 from data import EXAMS, FEATURED_STATES, GRADES, REGIONS, STATES, SUBJECTS
 
 ROOT = Path(__file__).parent / "docs"
-B = "/us"
-CUR = f"{B}/us-curriculum"
+B = ""  # path prefix for every page; "" serves the site from the domain root
+HOME = "/"
+CUR = f"{B}/curriculum"
 TP = f"{B}/test-prep"
 EMAIL = "hello@twinkletutor.com"
-SITE = "https://twinkletutor.com"
-DOMAIN = "twinkletutor.com"
+SITE = "https://www.twinkletutor.com"
+DOMAIN = "www.twinkletutor.com"
 # Where the free trial and contact forms send submissions, e.g. a Formspree URL
 # like "https://formspree.io/f/abcdwxyz". Leave empty to use Netlify Forms.
 FORM_ENDPOINT = ""
@@ -20,7 +21,7 @@ STATE = {s[0]: s for s in STATES}
 
 CARET = '<svg class="caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>'
 MARK = '<svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3c.9 5.6 3 7.7 8.6 8.6-5.6.9-7.7 3-8.6 8.6-.9-5.6-3-7.7-8.6-8.6C8 10.700 10.100 8.600 11 3z" fill="#F5A524"/><path d="M19 2c.3 2 1 2.700 3 3-2 .3-2.700 1-3 3-.3-2-1-2.700-3-3 2-.3 2.700-1 3-3z" fill="#A597F5"/></svg>'
-LOGO = f'<a class="logo" href="{B}" aria-label="Twinkle Tutor home">{MARK}<span>Twinkle<b>Tutor</b></span></a>'
+LOGO = f'<a class="logo" href="{HOME}" aria-label="Twinkle Tutor home">{MARK}<span>Twinkle<b>Tutor</b></span></a>'
 
 
 def a(href, text, cls=None):
@@ -61,7 +62,7 @@ def header():
 
 def footer():
     li = lambda h, t: f"<li>{a(h, t)}</li>"
-    company = "".join(li(h, t) for h, t in [(B, "Home"), (CUR, "US Curriculum"), (f"{B}/pricing", "Pricing"), (f"{B}/about", "About Us"), (f"{B}/contact-us", "Contact Us"), (f"{B}/free-trial", "Free Trial")])
+    company = "".join(li(h, t) for h, t in [(HOME, "Home"), (CUR, "US Curriculum"), (f"{B}/pricing", "Pricing"), (f"{B}/about", "About Us"), (f"{B}/contact-us", "Contact Us"), (f"{B}/free-trial", "Free Trial")])
     subjects = "".join(li(f"{CUR}/{s[0]}", f"{s[1]} Tutor") for s in SUBJECTS)
     exams = "".join(li(f"{TP}/{x[0]}", x[1]) for x in EXAMS)
     states = "".join(li(f"{CUR}/{s}", STATE[s][1]) for s in FEATURED_STATES[:6])
@@ -88,7 +89,7 @@ FORM_ATTRS = f' action="{FORM_ENDPOINT}" data-endpoint="{FORM_ENDPOINT}"' if FOR
 
 
 def page(path, title, desc, body):
-    url = f"{B}/{path}".rstrip("/")
+    url = f"{B}/{path}".rstrip("/") or "/"
     html = f"""<!doctype html>
 <html lang="en-US">
 <head>
@@ -117,7 +118,7 @@ def page(path, title, desc, body):
 </body>
 </html>
 """
-    out = ROOT / "us" / path / "index.html"
+    out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)
 
@@ -125,7 +126,7 @@ def page(path, title, desc, body):
 # ---------- shared blocks ----------
 
 def crumbs(*items):
-    parts = [a(B, "Home")]
+    parts = [a(HOME, "Home")]
     for item in items:
         parts.append(a(*item) if isinstance(item, tuple) else f"<span>{e(item)}</span>")
     return '<nav class="crumbs" aria-label="Breadcrumb">' + '<span aria-hidden="true">/</span>'.join(parts) + "</nav>"
@@ -323,7 +324,7 @@ def curriculum():
     body += section(head("Browse by grade level", "Grade levels", "See what's covered at each stage, and how we help.") + grade_chips(), attrs=" id=grades")
     body += section(head("Browse by state", "States", "Each state has its own standards and tests.") + state_chips() + f'<p class="mt">{a(f"{CUR}/states", "Compare standards & tests for all 50 states →", "more")}</p>', alt=True)
     body += cta()
-    page("us-curriculum", "US Curriculum & State Standards Tutoring | Twinkle Tutor",
+    page("curriculum", "US Curriculum & State Standards Tutoring | Twinkle Tutor",
          "Online tutoring aligned with Common Core, NGSS and each state's standards, from TEKS to Florida B.E.S.T. and the Virginia SOLs, for Kindergarten to 12th Grade.", body)
 
 
@@ -336,7 +337,7 @@ def states_index():
         body += section(head(f"{r}", "Region") + table(rows, ["State", "Learning standards", "State test"]), alt=i % 2 == 1)
     body += section('<p class="muted">Standards and test names change from time to time. Check your state department of education for the latest details, and tell us your district when you book so we can match your class syllabus.</p>')
     body += cta()
-    page("us-curriculum/states", "Tutoring by State: Standards & Tests | Twinkle Tutor",
+    page("curriculum/states", "Tutoring by State: Standards & Tests | Twinkle Tutor",
          "Learning standards and state tests for all 50 US states and DC, from STAAR and CAASPP to FAST, Regents and PSSA. Online tutoring matched to your state.", body)
 
 
@@ -359,7 +360,7 @@ def state_page(s):
     others = [x for x in STATES if x[3] == region and x[0] != slug]
     body += section(head(f"Other {region} states", "Nearby") + state_chips(others))
     body += cta(f"Try a free lesson with a {name} tutor")
-    page(f"us-curriculum/{slug}", f"Online Tutoring in {name} ({abbr}) | Twinkle Tutor",
+    page(f"curriculum/{slug}", f"Online Tutoring in {name} ({abbr}) | Twinkle Tutor",
          f"Live 1-on-1 online tutoring for {name} students, K–12, aligned with {abbr} standards and state tests, plus SAT & ACT prep. Book a free trial.", body)
 
 
@@ -386,7 +387,7 @@ def grade_page(g):
         body += section(head(f"Tests in {label}", "Test prep") + exam_cards(tests))
     body += section(head("Other grades", "Grade levels") + grade_chips(), alt=not tests)
     body += cta()
-    page(f"us-curriculum/{slug}", f"{label} Online Tutoring | Twinkle Tutor",
+    page(f"curriculum/{slug}", f"{label} Online Tutoring | Twinkle Tutor",
          f"Live 1-on-1 {label} tutoring in Math, English and Science, aligned with Common Core and your state's standards. Book a free trial.", body)
 
 
@@ -411,7 +412,7 @@ def subject_page(s):
       </div><div class="grid g2 steps">{''.join(f'<div class="card step"><h3>{e(h)}</h3><p>{e(p)}</p></div>' for h, p in approach)}</div></div>""")
     body += section(head("By grade level") + f'<p class="muted">Pick a grade to see {name} focus areas:</p>' + grade_chips(), alt=True)
     body += cta(f"Try a free {name} lesson")
-    page(f"us-curriculum/{slug}", f"Online {name} Tutor | K–12, AP & SAT/ACT | Twinkle Tutor",
+    page(f"curriculum/{slug}", f"Online {name} Tutor | K–12, AP & SAT/ACT | Twinkle Tutor",
          f"Live 1-on-1 online {name.lower()} tutoring for US students, Kindergarten to 12th Grade. Aligned with Common Core/NGSS and state standards. Book a free trial.", body)
 
 
@@ -548,17 +549,22 @@ def legal(slug, title, paras):
     page(slug, f"{title} | Twinkle Tutor", f"{title} for Twinkle Tutor's US online tutoring services.", body)
 
 
+def pages():
+    """Every generated page, excluding the /us/ redirect."""
+    return [f for f in ROOT.rglob("index.html") if f.parent.relative_to(ROOT).parts[:1] != ("us",)]
+
+
 def extras():
     """404 page, sitemap and robots.txt for the live site."""
     body = hero("Page not found", "We couldn't find that page", "The link may be old or mistyped. Try the home page, or find your state.",
-                ctas=[(B, "Go to the home page"), (f"{CUR}/states", "Find your state")])
+                ctas=[(HOME, "Go to the home page"), (f"{CUR}/states", "Find your state")])
     page("404", "Page Not Found | Twinkle Tutor", "This page could not be found.", body)
-    tmp = ROOT / "us" / "404" / "index.html"
+    tmp = ROOT / "404" / "index.html"
     html = re.sub(r'<link rel="canonical"[^>]*>', '<meta name="robots" content="noindex">', tmp.read_text())
     (ROOT / "404.html").write_text(html)
     tmp.unlink()
     tmp.parent.rmdir()
-    urls = sorted(f"{SITE}/" + str(f.parent.relative_to(ROOT)) for f in (ROOT / "us").rglob("index.html"))
+    urls = sorted(f"{SITE}/" + (str(rel) if str(rel) != "." else "") for rel in (f.parent.relative_to(ROOT) for f in pages()))
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"  <url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n")
     (ROOT / "CNAME").write_text(DOMAIN + "\n")
@@ -586,9 +592,11 @@ def build():
         ("Payments", "Prices are in US dollars. Sales tax is added where it applies."),
         ("Conduct", "Students and tutors must behave respectfully. Sessions may be recorded for quality and safety."),
         ("Changes", "We may update these terms and will tell you about any material changes.")])
-    (ROOT / "index.html").write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/us"><link rel="canonical" href="/us"><a href="/us">Continue</a>')
+    # The site used to live under /us/; send old links to the home page.
+    (ROOT / "us").mkdir(exist_ok=True)
+    (ROOT / "us" / "index.html").write_text(f'<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=/"><link rel="canonical" href="{SITE}/"><a href="/">Continue</a>')
     extras()
-    print(len(list((ROOT / "us").rglob("index.html"))), "pages built")
+    print(len(pages()), "pages built")
 
 
 if __name__ == "__main__":

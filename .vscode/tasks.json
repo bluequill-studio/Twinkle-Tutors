@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Build site",
+      "type": "shell",
+      "command": "python3 build.py",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "2. Preview site (http://localhost:8000/)",
+      "type": "shell",
+      "command": "python3 -m http.server 8000 --directory docs",
+      "dependsOn": "1. Build site",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

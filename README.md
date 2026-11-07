@@ -22,7 +22,7 @@ It's a static site with no database or server code, hosted free on GitHub Pages.
    python3 build.py
    ```
 
-3. Preview at http://localhost:8000/us/:
+3. Preview at http://localhost:8000/:
 
    ```bash
    python3 -m http.server 8000 --directory docs
@@ -35,7 +35,7 @@ Don't edit the HTML files in `docs/` by hand; `build.py` overwrites them on ever
 ## Hosting on GitHub Pages
 
 1. Repository **Settings → Pages**: Source **Deploy from a branch**, branch **main**, folder **/docs**, then **Save**.
-2. Custom domain: `twinkletutor.com` (the `docs/CNAME` file sets this), then tick **Enforce HTTPS** once it's available.
+2. Custom domain: `www.twinkletutor.com` (the `docs/CNAME` file sets this; `twinkletutor.com` redirects to it), then tick **Enforce HTTPS** once it's available.
 3. DNS at Hoster.pk:
 
    | Type | Name | Value |
