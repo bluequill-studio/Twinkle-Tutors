@@ -1,4 +1,5 @@
 """Build the Twinkle Tutor site into docs/ (served by GitHub Pages). Run: python3 build.py"""
+import math
 import re
 from html import escape as e
 from pathlib import Path
@@ -242,17 +243,33 @@ MAIN_FAQ = [
 
 # ---------- pages ----------
 
-SEAL_TEXT = "FREE TRIAL · 1-ON-1 · LIVE · ALL 50 STATES · "
+# Non-breaking spaces: SVG collapses ordinary ones, which would close the gap where the text meets itself.
+SEAL_TEXT = "FREE TRIAL • 1-ON-1 • LIVE • ALL 50 STATES • ".replace(" ", "\u00a0")
+SEAL_TEXT_R = 57  # radius of the circle the seal text runs along
+
+
+def seal_edge(points=36, outer=77, inner=72, c=80):
+    """Evenly scalloped badge outline: a closed polygon alternating between two radii."""
+    pts = []
+    for i in range(points * 2):
+        r = outer if i % 2 == 0 else inner
+        a = math.pi * i / points - math.pi / 2
+        pts.append(f"{c + r * math.cos(a):.2f},{c + r * math.sin(a):.2f}")
+    return "M" + " L".join(pts) + "Z"
 
 
 def studio_hero():
+    r = SEAL_TEXT_R
     seal = f"""<div class="seal" aria-hidden="true"><svg viewBox="0 0 160 160">
-      <defs><path id="sealPath" d="M80,80 m-58,0 a58,58 0 1,1 116,0 a58,58 0 1,1 -116,0"/></defs>
-      <path d="M80 6 l6 6 8-3 4 7 9-1 2 8 8 1 0 8 8 3-2 8 7 5-4 7 5 6-6 6 3 8-7 4 1 8-8 2-1 9-8 0-3 8-8-2-5 7-7-4-6 5-6-5-7 4-5-7-8 2-3-8-8 0-1-9-8-2 1-8-7-4 3-8-6-6 5-6-4-7 7-5-2-8 8-3 0-8 8-1 2-8 9 1 4-7 8 3z" fill="#fff" stroke="currentColor" stroke-width="1.2"/>
-      <circle cx="80" cy="80" r="44" fill="none" stroke="currentColor" stroke-width="1"/>
-      <text font-size="13" font-weight="800" letter-spacing="3" fill="currentColor"><textPath href="#sealPath">{SEAL_TEXT}</textPath></text>
-      <circle cx="80" cy="80" r="26" fill="none" stroke="#16152b" stroke-width="3"/>
-      <path d="M58 74c14 2 30 2 44 0M58 86c14-2 30-2 44 0M80 54c-10 14-10 38 0 52M80 54c10 14 10 38 0 52" fill="none" stroke="#16152b" stroke-width="2.4"/>
+      <defs><path id="sealPath" d="M80,{80 - r} a{r},{r} 0 1,1 0,{2 * r} a{r},{r} 0 1,1 0,-{2 * r}"/></defs>
+      <path d="{seal_edge()}" fill="#fff" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="80" cy="80" r="46" fill="none" stroke="currentColor" stroke-width="1"/>
+      <text font-size="10.5" font-weight="700" fill="currentColor"><textPath href="#sealPath" textLength="{2 * math.pi * r:.1f}" lengthAdjust="spacing">{SEAL_TEXT}</textPath></text>
+      <g fill="none" stroke="#16152b" stroke-width="2.4">
+        <circle cx="80" cy="80" r="24" stroke-width="3"/>
+        <ellipse cx="80" cy="80" rx="10" ry="24"/>
+        <path d="M56 80h48M60 68h40M60 92h40"/>
+      </g>
     </svg></div>"""
     return f"""<section class="studio"><div class="container studio-grid">
   <div>
